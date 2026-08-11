@@ -1,215 +1,240 @@
 /* =============================================
-   SUSHI KATANA — APP.JS
+   FRYS BAKU — APP.JS
+   Fast Food Real Taste
    ============================================= */
 
 'use strict';
 
 // ─── Constants ───────────────────────────────
 const WA_NUMBER = '994559406018';
-const PAGE_SCROLL_MAP = {};   // page -> scrollY before leaving
+const PAGE_SCROLL_MAP = {};
 let currentPage = 'home';
 let currentModalProduct = null;
 let currentVacancy = null;
 let cart = [];
 
+// ─── IMAGE URLS ───────────────────────────────
+const IMG = {
+  caesarSalad: 'https://sspark.genspark.ai/cfimages?u1=aMN%2BcG35CUaqLjHcRNK2zve9OOp%2FF39uCqk0sTGnnHyHDKdmjvtX47paGcvDDWF1vj%2FUshHtiC8nBys5E0wdd0RylVGB44Jbox3uWVgeHtyPnzrB1tOb7%2BXszhzP7aD3jiM2IQ9ImCYUuB4wjKIu5dnbdYejkb%2BnOQyEH67rXML2lqIT6yYfxMLoOzNPMeRfdzXNka%2BxeKQo%2Fjdbl0VBHMlnTmGpQgBdEDlwpa96BDzID7t4MqW%2B&u2=RxHB%2BdH1m5YhO9PQ&width=2560',
+  greekSalad: 'https://sspark.genspark.ai/cfimages?u1=5OWtPejxqau35lQo%2FkZcVati4gwV8d4dUHZ9UwjmXh%2BaLNQcYYvMX020aGeIUNCFEXiAfG6OnXi8ZdLVHrrabc4OmSw6M93lCUjt%2B%2FiYVLynCgdl1nNLOeK96hJpycB1xLwLEdqw6Q%3D%3D&u2=Z1IGf0izsVsepdbH&width=2560',
+  vegSalad: 'https://sspark.genspark.ai/cfimages?u1=MTvSyC483IAmLh8VEoRMb0vVO4uILsVs%2FQj6jevh3V5lcZ9oK0UFTRVecwqUuAcUa8gYWWIFk3WfXVPYm50G12mXe8IT5I7HyZw6eM7UW29ij5%2FatPal1A8RdHjOPEnWOy2S5VFwRvN0Rs8%2BPK1%2BwbBBJdjCLUZKYultnOEqdkjaH%2B8wI5oA7HsJogJSfK4CqJVoqd5kolj7L%2F3NmSQixilQ%2F%2FWIn8wCcGihgJV%2F1EqE%2FwXRf3zebIpvo5FgND7D1Bk3Y5wxdjYLyRm7iEGPcCcHIJVD&u2=a5vsGv%2Fw6URPt9Fl&width=2560',
+  shawarma: 'https://sspark.genspark.ai/cfimages?u1=SMElDESP3PqrQ4G7GQwHY5OHlrFpvyq7Vgpq5veoLV70%2BiNqhVoPW4zC007kDe2cuGq12KCzadwJSKtddK1hr2bXFgspX2e0aSOOaChnw%2FIqFhnkjfnj4D0YeWEm7JvoNtu4Mks9LXckfTY4CQctiejgz2USyj2uv%2BjpuY%2FK7ToT1lpLVaJ%2Ff6o%3D&u2=BEmrlHnpHV760aas&width=2560',
+  caesarRoll: 'https://sspark.genspark.ai/cfimages?u1=mvVPzvefWbbfjNC1G85d%2F1qsBVftnvdXERrDFnbqWrbQaNxUKXTZyp5eREaX7SDChDeVPEvY4IvybUxj9qIaH%2BW2ebCyTGD8WM7pu3aV8e75EjpveQ54L1IzOnKX6kFBwzBXClUKQxgs&u2=eQXYC9kgdz4ub9gZ&width=2560',
+  beefBurger: 'https://sspark.genspark.ai/cfimages?u1=8PArffSMkeOTziaIjRVYFm3Wi83z8Zf25Y%2B3ua8yZIxW0AuUOsH2SAiZ116q4%2BmuG6oRbyZVPazwHH42TzBozoLJJ2F9CARM89htJEyIC4vUJzEX0UNJ%2F4pgLF8HegGMQswb&u2=MNDaa1p47fYzWL8Z&width=2560',
+  chickenBurger: 'https://sspark.genspark.ai/cfimages?u1=M8X0Zh9Gk0ePwX6ge38Pw%2Fht8Z3RFWAtUM0cHGWyvJG9jkCHGR7mJwV2rgk%2F1oA8XE7XDJK8BWP7Tm8kLNu%2BO5p0M%2FvqBqBUBHUvtEDuIvT4gr4NoptxEI0cagDjccDWjw2pifEQ8V56esBQLlRHe0zWRI8J3cWvyM5DsuZzy8ZPzV0i4QUYqYhyh0xbRmOetcN9JG9pw1W8j1o6Bwv4QAjhjU8ShJ2qivyfQNkAMdY8GhrnYmRJVaSYiRP4OfoRwYUV37evGQ8W4BeoXbVt%2F5bPyxAY3wfMCbPaCvXxpfuwyYKX&u2=zaFrgkAYNVMiOgqS&width=2560',
+  stripsSandwich: 'https://sspark.genspark.ai/cfimages?u1=ARKak%2F44UvBRQqUTgsYPxxHca4xdmD0If9rxX5zSBCR13%2FEbHdu9C%2FVdh9wLt%2FKZ8fRJOFT%2FdbQVFJJYVdY1P8QXhqLplL0LXGK2KVI2YOe9WR0Fn7ecIKxE7NqrW3t8NfWvG%2BKNcCA76MRqDnlaXUdF8wrBEKKO5oOV9GQVibKMbiqhBVN0oxm2%2FAu4cv3hCQCyXon2jqcqMbljgnNsRhJAeacAEGxhtS9UoAvQVCFZnZrbBU2cpinmiZm5ar0NkZyPPxylVehIHPQWYy8n1wUbqCnCE9fIp8rbvRarUq96bMVBC1h0cv2DpGfovX6JQsp9Geb5aKjn86WOE3aWXWU%3D&u2=tPJ6f2w84Zel3DOu&width=2560',
+  lahmacun: 'https://sspark.genspark.ai/cfimages?u1=1NhwkNgxStfgTJbm7d9kOUZ1TNRxTezMLkceO9WMKotS1GDo052K2xcPY8PRdzM04QRLY8zBGBQxXLOwETzlk850T5vc8m0F3zym%2Fybhgq7xnN7a%2BRbN9V3qNPBFgqocmcjXcBr3SERZI6f0hMsxgitz4NQ%3D&u2=q4T2yiDagSLPkI4D&width=2560',
+  lahmacunPendir: 'https://sspark.genspark.ai/cfimages?u1=rYjWVXAOOgTHhuj2oVkxplmV5YKPe8vQOaxMozO7%2FnfWDUCiMxeH61SyRQh56C3nB%2BqVP%2B8WxprOLlBLi8cJQA5dx6otr7fqH5quwzGoQKAFwWz76wFKbc6BYnEqaH%2B%2BOUG57w%2FlLtxn6A%3D%3D&u2=5%2FnhqHmIZEtzOdK8&width=2560',
+  pizza: 'https://sspark.genspark.ai/cfimages?u1=uQkKmhVkhNFccsd3HkiQdlQ91J4MEjTSNenET94bKmfntOuuvYMtMWWPGZrP7WSEquVkPYCjs2U1W1En1ya5r%2F0323UlsYVYAKS5cgtTbBX6b3ceWLjq%2Fei4DEyQ4421ozPpTF6hT2icBz1Io2C9ao7L6HWku4aNonhi3VXg7PZNe0f%2Fe9PualDn5d0CX%2FEJ30R5IRAQvOZSdR%2BtRSnLCucSmvapzB8LFZR6CkyO%2B81B6xlNrSr6eh2ttUHZ%2BL%2BRcMr0QkyWxvI1937%2Bv96CW0g%3D&u2=YVjKCRt8Qndrse07&width=2560',
+  kartofFri: 'https://sspark.genspark.ai/cfimages?u1=CcEL11fhx%2FcqiFdGKdnJFV2IQ0uuJ3WtKvn29Vf4xfqBYHga6mUBD8urJACrb5OHCDDwU5hiF53B1SaD%2F4lSop2%2B%2BHZWC8xLJvLRmXDa3CnxylaogGAR57XgE7%2BTCGhPJaVA1ihozjR3bUXc5XEWwwGhoFeF8Z5275FCPLD5aUM6ZCEIofHe%2B03dIKOzlDw%2Fz4lQmrzZDTRVtFzm%2FLAZ0w2tEoc2dhNx00quu7F%2BQDmBTmwALe4BAZWrxw%3D%3D&u2=WlJG4ozYdb%2BQ4pyq&width=2560',
+  nuggets: 'https://sspark.genspark.ai/cfimages?u1=kzIQGP4u%2FykiTsPzk9KoucVbLDdOTPv4jPQ4VZFHLTpjsmd6D3HBN4sXtthgSzi4aYwIQAylBdzP07u48pVGJVsTNdNBQQhoH7%2FAMiImHk0A%2BmG0JeRbAT71tX%2BRYXrq3%2BixssgQzunQF1kIuetPoGsC%2BepMsgEwzQcnoOO9FHkp7S0KV%2B%2BTyGgrB0FmFV%2B1UCg1eib3zEtMb%2BLNpSjwV6GvbxcNNpdZndAr8iahUxMGPlPBMf2iRCDzm8nrj%2FaN%2BbF3WhRmzZ8PdKGadBmKH53XF2BZR0UuAEWagD81yA%3D%3D&u2=i5TCSqdtFp8IY9ue&width=2560',
+  wings: 'https://sspark.genspark.ai/cfimages?u1=fIL75FVBIwifUToHdPQJQRiM1Srt6Ocli9jsJUQM7wznzB3kb9GVl55ednI%2F6wn3orJkCeElKRSmETftDijsX11ySKgnr2yz93QzKbBqR2%2BRQm%2FSBG0T&u2=Zg1X4yFjdBxlr77A&width=2560',
+  strips: 'https://sspark.genspark.ai/cfimages?u1=hnakoMgi%2BBQF87LTCoD2NJ3WqokkBkHrf0tGRrvjCrqMFZ5jVQCaghNxwJ%2BACF3FhlXGOrHiTE91%2BA1bQTjGNOgU1yN2HyY4MbmiAXTYWStgL9dA75ATZIrzhRebPfRYeaOOiHMuDIvWSN31voju0K4O01WSJtOCt4ND%2FpZuCOOs%2FO6EJEiS9TRYmWqhpCF5bZoEBvZ8MzrQHtbrlKAbuNkgIAl14lgpSkm5vGp9Mf%2BGd47UMP5nXZXe5Bw3ooRHR5oXCoq3RT4usemnCtCXgQ6m2qNL5PDGivb4MEp8CTwGSKvATVLGDTejWwhUiEWKlxY%3D&u2=4%2FvxT4H%2FTL6RHBpa&width=2560',
+  budDibi: 'https://sspark.genspark.ai/cfimages?u1=sRsRGzoXIMHHLgV6a%2BIp8wpvRMLDieoKTg4gjT1KyifdVkLh9TjCSwLq%2FBB1ba9X10FGnFgL5xE94w4MHCwqBuvRMV3OdZWqeQ7ac3SF%2FY%2FqZRzzgpll285KMV%2FI3V8GkY3JBL806TGX7zAz2Tnx8L%2BU&u2=tulUw1jzl3tR1Jl5&width=2560'
+};
+
 // ─── DATA ─────────────────────────────────────
 
 const menuData = {
-  sets: [
+  salatlar: [
     {
-      id: 's1',
-      name: 'Set N1 — Super Təklif',
-      desc: '70 əd. müxtəlif suşi + 1L Coca-Cola pulsuz! Böyük yığıncaqlar üçün ideal seçim.',
-      price: 29,
-      weight: '70 əd. + 1L Cola',
-      img: 'images/set-n1.jpg',
-      badge: 'Super Təklif'
-    },
-    {
-      id: 's2',
-      name: 'Set N3',
-      desc: '30 əd. müxtəlif suşi — California, Philadelphia, Hot Crab, Hot Salmon, Baked, Maki daxildir.',
-      price: 19,
-      weight: '30 əd.',
-      img: 'images/set-n3.jpg',
+      id: 'sal1',
+      name: 'Sezar toyuq',
+      desc: 'Ətirli toyuq, təzə salat yarpaqları, Sezar sousu və krekerlərlə hazırlanmış dadlı salat.',
+      price: 10,
+      weight: '300 q',
+      img: IMG.caesarSalad,
       badge: 'Populyar'
     },
     {
-      id: 's3',
-      name: 'Sushi Premium Set',
-      desc: 'Klassik Nigiri, Maki, California Roll — hər şey bir yerdə. Suşi sevənlər üçün ideal set.',
-      price: 29,
-      weight: '6 növ, hər birindən',
-      img: 'images/menu-hero.jpg',
-      badge: 'Klassik'
-    }
-  ],
-  rolls: [
-    {
-      id: 'r1',
-      name: 'California Roll',
-      desc: 'Krab əti, avokado, salatalıq, tobiko kürüsü ilə hazırlanmış klassik uramaki roll.',
+      id: 'sal2',
+      name: 'Yunan salatı',
+      desc: 'Pomidor, xiyar, zeytin, qırmızı soğan, feta pendir, zeytun yağı ilə hazırlanmış klassik yunan salatı.',
       price: 8,
-      weight: '8 əd.',
-      img: 'images/menu-hero.jpg'
+      weight: '280 q',
+      img: IMG.greekSalad
     },
     {
-      id: 'r2',
-      name: 'Philadelphia Roll',
-      desc: 'Krem pendir, somon, avokado ilə hazırlanmış zəngin dadlı uramaki roll.',
-      price: 9,
-      weight: '8 əd.',
-      img: 'images/gallery1.jpg'
-    },
-    {
-      id: 'r3',
-      name: 'Hot Crab Roll',
-      desc: 'İsti qızardılmış krab içlikli, xüsusi Katana sousu ilə servis edilən roll.',
-      price: 8,
-      weight: '8 əd.',
-      img: 'images/set-n3.jpg'
-    },
-    {
-      id: 'r4',
-      name: 'Hot Salmon Roll',
-      desc: 'Qızardılmış somon içlikli, wasabi mayonezi ilə servis edilən isti roll.',
-      price: 8,
-      weight: '8 əd.',
-      img: 'images/menu-hero.jpg'
-    },
-    {
-      id: 'r5',
-      name: 'Baked Roll',
-      desc: 'Fırında bişirilmiş, kremli pendir sousu ilə örtülmüş xüsusi Katana rollları.',
-      price: 9,
-      weight: '8 əd.',
-      img: 'images/gallery1.jpg'
-    },
-    {
-      id: 'r6',
-      name: 'Spicy Tuna Roll',
-      desc: 'Ədviyyatlı ton balığı, xiyar, sriracha mayonezi ilə hazırlanmış qızğın roll.',
-      price: 9,
-      weight: '8 əd.',
-      img: 'images/set-n3.jpg'
-    },
-    {
-      id: 'r7',
-      name: 'Dragon Roll',
-      desc: 'Karides tempura, avokado, unagi sousu ilə hazırlanmış vizual cəhətdən möhtəşəm roll.',
-      price: 11,
-      weight: '8 əd.',
-      img: 'images/menu-hero.jpg'
-    },
-    {
-      id: 'r8',
-      name: 'Rainbow Roll',
-      desc: 'Krab, avokado California rollu üzərinə somon, ton balığı, karides diləmləri ilə.',
-      price: 12,
-      weight: '8 əd.',
-      img: 'images/gallery1.jpg'
-    }
-  ],
-  nigiri: [
-    {
-      id: 'n1',
-      name: 'Somon Nigiri',
-      desc: 'Təzə Atlantik somonundan hazırlanmış, əl ilə yoğurulmuş pirinc üzərində nigiri.',
-      price: 5,
-      weight: '2 əd.',
-      img: 'images/menu-hero.jpg'
-    },
-    {
-      id: 'n2',
-      name: 'Ton Balığı Nigiri',
-      desc: 'Premium Bluefin ton balığından hazırlanmış, xüsusi mari sousu ilə servis.',
-      price: 6,
-      weight: '2 əd.',
-      img: 'images/menu-hero.jpg'
-    },
-    {
-      id: 'n3',
-      name: 'Karides Nigiri',
-      desc: 'Bişirilmiş böyük karides, pirinc üzərində incə nori ilə bağlanmış nigiri.',
-      price: 5,
-      weight: '2 əd.',
-      img: 'images/menu-hero.jpg'
-    },
-    {
-      id: 'n4',
-      name: 'Unagi Nigiri',
-      desc: 'Şirin-şor teriyaki sousu ilə şüyüdlənmiş tərəvəz balığı (unagi) nigiris.',
+      id: 'sal3',
+      name: 'Tərəvəz salatı smetanla (Uşaq üçün)',
+      desc: 'Təzə tərəvəzlər smetana sousu ilə hazırlanmış, uşaqlar üçün ideal yüngül salat.',
       price: 7,
-      weight: '2 əd.',
-      img: 'images/menu-hero.jpg'
+      weight: '250 q',
+      img: IMG.vegSalad
     }
   ],
-  maki: [
+  shawarma: [
     {
-      id: 'm1',
-      name: 'Maki Salmon',
-      desc: 'Təzə somon və nori dərinliyindən hazırlanmış sadə, lakin dadlı klassik maki rollları.',
-      price: 5,
-      weight: '10 əd.',
-      img: 'images/menu-hero.jpg'
+      id: 'sh1',
+      name: 'Şaurma Toyuq',
+      desc: 'Lavaşda toyuq əti, tərəvəzlər, xüsusi sousla hazırlanmış ənənəvi şaurma.',
+      price: 7,
+      weight: '350 q',
+      img: IMG.shawarma,
+      badge: 'Bestseller'
     },
     {
-      id: 'm2',
-      name: 'Maki Ton Balığı',
-      desc: 'Premium ton balığı ilə hazırlanmış ənənəvi Yapon maki rollları.',
-      price: 5,
-      weight: '10 əd.',
-      img: 'images/menu-hero.jpg'
-    },
-    {
-      id: 'm3',
-      name: 'Maki Xiyar',
-      desc: 'Kappa maki — vegeterian seçimi, təzə xiyar ilə hazırlanmış yüngül maki rollları.',
-      price: 4,
-      weight: '10 əd.',
-      img: 'images/menu-hero.jpg'
-    },
-    {
-      id: 'm4',
-      name: 'Maki Avokado',
-      desc: 'Kremli avokado ilə hazırlanmış bitki əsaslı yüngül maki rollları.',
-      price: 4,
-      weight: '10 əd.',
-      img: 'images/menu-hero.jpg'
+      id: 'sh2',
+      name: 'Sezar roll',
+      desc: 'Lavaşda Sezar salatı, toyuq, pendir, xüsusi Sezar sousu ilə hazırlanmış dadlı roll.',
+      price: 8,
+      weight: '320 q',
+      img: IMG.caesarRoll
     }
   ],
-  drinks: [
+  burgers: [
     {
-      id: 'd1',
-      name: 'Coca-Cola',
-      desc: 'Klassik Coca-Cola — suşi ilə mükəmməl cütlük.',
-      price: 2,
-      weight: '0.33L',
-      img: 'images/set-n1.jpg'
+      id: 'b1',
+      name: 'Beef Burger',
+      desc: 'Şirəli mal əti kotleti, pendir, pomidor, salat yarpağı, xüsusi sous ilə hazırlanmış burger.',
+      price: 11,
+      weight: '350 q',
+      img: IMG.beefBurger,
+      badge: 'Yeni'
     },
     {
-      id: 'd2',
-      name: 'Coca-Cola 1L',
-      desc: 'Böyük Coca-Cola, setlər üçün ideal seçim.',
+      id: 'b2',
+      name: 'Chicken Burger',
+      desc: 'Qızardılmış toyuq filesi, pendir, pomidor, xiyar, mayonez sousu ilə dadlı burger.',
+      price: 10,
+      weight: '320 q',
+      img: IMG.chickenBurger,
+      badge: 'Populyar'
+    },
+    {
+      id: 'b3',
+      name: 'Strips Sendviç',
+      desc: 'Xırtıldayan toyuq strips, salat yarpağı, pomidor, xüsusi sousla hazırlanmış sendviç.',
+      price: 9,
+      weight: '300 q',
+      img: IMG.stripsSandwich
+    }
+  ],
+  lahmacun: [
+    {
+      id: 'l1',
+      name: 'Lahmacun sadə',
+      desc: 'Nazik xəmirdə qiymə əti, soğan, bibər, ədviyyatlarla hazırlanmış ənənəvi lahmacun.',
       price: 4,
-      weight: '1L',
-      img: 'images/set-n1.jpg'
+      weight: '1 əd.',
+      img: IMG.lahmacun
     },
     {
-      id: 'd3',
-      name: 'Yaşıl Çay',
-      desc: 'Ənənəvi Yapon yaşıl çayı — suşi ilə klassik kombinasiya.',
-      price: 3,
-      weight: '400ml',
-      img: 'images/menu-hero.jpg'
+      id: 'l2',
+      name: 'Lahmacun pendir',
+      desc: 'Nazik xəmirdə qiymə əti, soğan, bibər, bol pendir ilə hazırlanmış pendiirli lahmacun.',
+      price: 5,
+      weight: '1 əd.',
+      img: IMG.lahmacunPendir,
+      badge: 'Populyar'
     },
     {
-      id: 'd4',
-      name: 'Miso Şorba',
-      desc: 'Ənənəvi Yapon miso şorbasıı, tofu və dəniz yosunu ilə.',
+      id: 'l3',
+      name: 'Lahmacun acılı',
+      desc: 'Nazik xəmirdə qiymə əti, soğan, acı bibər, ədviyyatlarla hazırlanmış acılı lahmacun.',
       price: 4,
-      weight: '350ml',
-      img: 'images/menu-hero.jpg'
+      weight: '1 əd.',
+      img: IMG.lahmacun
+    }
+  ],
+  pizza: [
+    {
+      id: 'p1',
+      name: 'Margarita',
+      desc: 'Pomidor sousu, mozzarella pendir, təzə reyhan ilə klassik İtalyan pizzası.',
+      price: 8,
+      weight: '30 sm.',
+      img: IMG.pizza
+    },
+    {
+      id: 'p2',
+      name: 'Pepperoni',
+      desc: 'Pomidor sousu, mozzarella pendir, pepperoni kolbasa ilə hazırlanmış dadlı pizza.',
+      price: 11,
+      weight: '30 sm.',
+      img: IMG.pizza,
+      badge: 'Bestseller'
+    },
+    {
+      id: 'p3',
+      name: 'Sezar Pizza',
+      desc: 'Sezar sousu, toyuq, mozzarella pendir, kreker ilə hazırlanmış orijinal Sezar pizzası.',
+      price: 12,
+      weight: '30 sm.',
+      img: IMG.pizza,
+      badge: 'Yeni'
+    },
+    {
+      id: 'p4',
+      name: 'Toyuq pizza',
+      desc: 'Pomidor sousu, toyuq əti, mozzarella pendir, soğan, bibər ilə hazırlanmış toyuq pizzası.',
+      price: 12,
+      weight: '30 sm.',
+      img: IMG.pizza
+    }
+  ],
+  kartof: [
+    {
+      id: 'k1',
+      name: 'Kartof fri',
+      desc: 'Xırtıldayan qızardılmış kartof dilimlər, duz ilə servis edilir.',
+      price: 4,
+      weight: '200 q',
+      img: IMG.kartofFri,
+      badge: 'Populyar'
+    },
+    {
+      id: 'k2',
+      name: 'Ev sayağı kartof',
+      desc: 'Ədviyyatlı ev üsulu ilə hazırlanmış xüsusi kartof, xırtıldayan və dadlı.',
+      price: 4,
+      weight: '220 q',
+      img: IMG.kartofFri
+    }
+  ],
+  toyuq: [
+    {
+      id: 't1',
+      name: 'Toyuq nagets',
+      desc: 'Xırtıldayan xəmir içərisində şirəli toyuq parçaları, dip sous ilə servis edilir.',
+      price: 8,
+      weight: '8 əd.',
+      img: IMG.nuggets,
+      badge: 'Populyar'
+    },
+    {
+      id: 't2',
+      name: 'Toyuq qanadları BBQ sousuyla',
+      desc: 'Şirəli toyuq qanadları, xüsusi BBQ sousu ilə marinələnib bişirilmiş.',
+      price: 15,
+      weight: '10 əd.',
+      img: IMG.wings,
+      badge: 'Bestseller'
+    },
+    {
+      id: 't3',
+      name: 'Bud dibi çöp şiş',
+      desc: 'Bud dibi əti şişə düzülmüş, ədviyyatlarla marinələnib hazırlanmış dadlı çöp şiş.',
+      price: 8,
+      weight: '5 əd.',
+      img: IMG.budDibi
+    },
+    {
+      id: 't4',
+      name: 'Strips box kiçik',
+      desc: 'Xırtıldayan toyuq strips, dip sousu ilə kiçik box formatında servis edilir.',
+      price: 7,
+      weight: '5 əd.',
+      img: IMG.strips
+    },
+    {
+      id: 't5',
+      name: 'Strips box böyük',
+      desc: 'Xırtıldayan toyuq strips, dip sousu ilə böyük box formatında servis edilir.',
+      price: 15,
+      weight: '10 əd.',
+      img: IMG.strips,
+      badge: 'Yeni'
     }
   ]
 };
@@ -240,8 +265,8 @@ const faqData = [
     a: 'Bəli! Şirkətlər, tədbirlər və böyük qruplar üçün xüsusi korporativ menyu və endirim proqramlarımız mövcuddur. WhatsApp vasitəsilə bizimlə əlaqə saxlayın.'
   },
   {
-    q: 'Qablaşdırma necədir? Eco-friendlydir?',
-    a: 'Biz ekoloji cəhətdən təmiz, geri dönüşümlü qablaşdırma materiallarından istifadə edirik. Soyuducu paketlər suşini çatdırılma zamanı ən təzə vəziyyətdə saxlayır.'
+    q: 'Harada yerləşirsiniz?',
+    a: 'Baxıxanov Mall, 3-cü mərtəbə. Hər gün işləyirik: B.E – Cümə: 10:00–23:00 | Şənbə: 10:00–24:00 | Bazar: 11:00–23:00.'
   },
   {
     q: 'Restoranın iş saatları necədir?',
@@ -252,14 +277,14 @@ const faqData = [
 const vacanciesData = [
   {
     id: 'v1',
-    icon: '🍱',
-    title: 'Suşi Ustad (Itamae)',
+    icon: '🍔',
+    title: 'Aşpaz / Hazırlayıcı',
     type: 'Tam Ştat',
-    salary: '800 – 1200 AZN',
+    salary: '700 – 1000 AZN',
     schedule: 'Dəyişən növbə (2/2)',
-    requirements: 'Ən az 1 il suşi hazırlama təcrübəsi, gigiyena sertifikatı',
-    desc: 'Katana mütbəxinə peşəkar suşi ustad axtarırıq. Kreativlik, dəqiqlik və komanda ruhu vacibdir.',
-    duties: 'Menyu maddələrinin hazırlanması, freshness nəzarəti, müştəri sifarişlərinin icrasını'
+    requirements: 'Ən az 1 il fast food hazırlama təcrübəsi, gigiyena sertifikatı',
+    desc: 'Frys Baku mətbəxinə peşəkar aşpaz axtarırıq. Sürətlilik, dəqiqlik və komanda ruhu vacibdir.',
+    duties: 'Menyu maddələrinin hazırlanması, freshness nəzarəti, müştəri sifarişlərinin icrası'
   },
   {
     id: 'v2',
@@ -280,7 +305,7 @@ const vacanciesData = [
     salary: '600 – 900 AZN',
     schedule: 'Dəyişən növbə',
     requirements: 'Kompüter savadlılığı, ünsiyyət bacarığı, 18+ yaş',
-    desc: 'Müştəri xidmətləri üzrə kassir/operator axtarırıq. Qulaqardına vurmamaq, gülərüz olmaq vacibdir.',
+    desc: 'Müştəri xidmətləri üzrə kassir/operator axtarırıq. Gülərüz, enerjili olmaq vacibdir.',
     duties: 'Sifarişlərin qəbulu, ödəniş əməliyyatları, müştəri məmnuniyyəti'
   },
   {
@@ -301,7 +326,6 @@ const vacanciesData = [
 function showPage(pageId) {
   const oldPage = document.getElementById('page-' + currentPage);
   if (oldPage) {
-    // Save scroll position of current page
     PAGE_SCROLL_MAP[currentPage] = window.scrollY;
     oldPage.classList.remove('active');
   }
@@ -312,18 +336,15 @@ function showPage(pageId) {
   if (!newPage) return;
   newPage.classList.add('active');
 
-  // Update nav active state
   document.querySelectorAll('.nav-link').forEach(link => {
     link.classList.toggle('active', link.dataset.page === pageId);
   });
 
-  // Restore scroll position for the new page
   const savedScroll = PAGE_SCROLL_MAP[pageId] || 0;
   window.scrollTo({ top: savedScroll, behavior: 'instant' });
 }
 
 function goBack() {
-  // Save current scroll
   PAGE_SCROLL_MAP[currentPage] = window.scrollY;
   showPage('home');
 }
@@ -408,7 +429,6 @@ function renderCart() {
   emptyEl.style.display = isEmpty ? 'flex' : 'none';
   footerEl.style.display = isEmpty ? 'none' : 'block';
 
-  // Remove old items (not the empty notice)
   const existingItems = itemsEl.querySelectorAll('.cart-item');
   existingItems.forEach(el => el.remove());
 
@@ -416,7 +436,7 @@ function renderCart() {
     const div = document.createElement('div');
     div.className = 'cart-item';
     div.innerHTML = `
-      <img class="cart-item-img" src="${item.img}" alt="${escHtml(item.name)}" loading="lazy" onerror="this.src='images/menu-hero.jpg'" />
+      <img class="cart-item-img" src="${item.img}" alt="${escHtml(item.name)}" loading="lazy" onerror="this.style.background='#333'" />
       <div class="cart-item-info">
         <div class="cart-item-name">${escHtml(item.name)}</div>
         <div class="cart-item-price">${item.price * item.qty} AZN</div>
@@ -434,7 +454,7 @@ function renderCart() {
 function bumpCartCount() {
   const el = document.getElementById('cartCount');
   el.classList.remove('bump');
-  void el.offsetWidth; // reflow
+  void el.offsetWidth;
   el.classList.add('bump');
   setTimeout(() => el.classList.remove('bump'), 300);
 }
@@ -442,7 +462,7 @@ function bumpCartCount() {
 function sendOrder() {
   if (cart.length === 0) return;
 
-  let msg = '🍱 *YENİ SİFARİŞ — Sushi Katana*\n\n';
+  let msg = '🔥 *YENİ SİFARİŞ — Frys Baku*\n\n';
   msg += '━━━━━━━━━━━━━━━━━━━━\n';
   cart.forEach((item, idx) => {
     msg += `${idx + 1}. ${item.name}\n   ${item.qty} × ${item.price} AZN = ${item.qty * item.price} AZN\n`;
@@ -471,13 +491,13 @@ function renderMenuGrids() {
       card.setAttribute('aria-label', item.name);
 
       const badgeHtml = item.badge
-        ? `<div style="position:absolute;top:10px;left:10px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;z-index:1;">${escHtml(item.badge)}</div>`
+        ? `<div class="menu-badge">${escHtml(item.badge)}</div>`
         : '';
 
       card.innerHTML = `
         <div class="menu-card-img">
           ${badgeHtml}
-          <img src="${item.img}" alt="${escHtml(item.name)}" loading="lazy" onerror="this.src='images/menu-hero.jpg'" />
+          <img src="${item.img}" alt="${escHtml(item.name)}" loading="lazy" onerror="this.style.background='#1a1a1a'" />
         </div>
         <div class="menu-card-body">
           <div class="menu-card-name">${escHtml(item.name)}</div>
@@ -532,7 +552,7 @@ function closeProductModalBtn() {
 
 function renderFaq() {
   const list = document.getElementById('faqList');
-  faqData.forEach((item, i) => {
+  faqData.forEach((item) => {
     const el = document.createElement('div');
     el.className = 'faq-item';
     el.innerHTML = `
@@ -551,7 +571,6 @@ function renderFaq() {
 function toggleFaq(btn) {
   const item = btn.closest('.faq-item');
   const isOpen = item.classList.contains('open');
-  // Close all
   document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
   if (!isOpen) item.classList.add('open');
 }
@@ -611,7 +630,7 @@ function closeVacancyModalBtn() {
 
 function applyVacancy() {
   if (!currentVacancy) return;
-  const msg = `👋 *Vakansiyaya Müraciət — Sushi Katana*\n\n🔹 *Vəzifə:* ${currentVacancy.title}\n🔹 *İş rejimi:* ${currentVacancy.type}\n\nSalam! Bu vakansiya ilə maraqlanıram. Əlaqə saxlamaq istəyirəm.`;
+  const msg = `👋 *Vakansiyaya Müraciət — Frys Baku*\n\n🔹 *Vəzifə:* ${currentVacancy.title}\n🔹 *İş rejimi:* ${currentVacancy.type}\n\nSalam! Bu vakansiya ilə maraqlanıram. Əlaqə saxlamaq istəyirəm.`;
   window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
 }
 
@@ -632,7 +651,7 @@ function submitReservation(e) {
   }
 
   const formattedDate = formatDate(date);
-  let msg = `📅 *REZERVASIYA — Sushi Katana*\n\n`;
+  let msg = `📅 *REZERVASIYA — Frys Baku*\n\n`;
   msg += `━━━━━━━━━━━━━━━━━━━━\n`;
   msg += `👤 *Ad, Soyad:* ${name}\n`;
   msg += `📞 *Telefon:* ${phone}\n`;
@@ -719,7 +738,6 @@ document.addEventListener('DOMContentLoaded', function() {
   renderVacancies();
   renderCart();
 
-  // Set min date for reservation to today
   const today = new Date().toISOString().split('T')[0];
   const resDate = document.getElementById('resDate');
   if (resDate) resDate.min = today;
